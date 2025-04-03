@@ -64,3 +64,4 @@ services:
       - "traefik.http.middlewares.strip-monitor.stripPrefix.prefixes=/monitor"
       - "traefik.http.routers.monitor.middlewares=strip-monitor"
       - "traefik.http.services.monitor.loadbalancer.server.port=80"
+

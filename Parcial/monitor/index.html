@@ -7,7 +7,7 @@
         .container { max-width: 800px; margin: 0 auto; }
         .card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
         .service-count { font-weight: bold; }
-        button { padding: 8px 15px; background: #af744c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button { padding: 8px 15px; background: #2a52a8; color: white; border: none; border-radius: 4px; cursor: pointer; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
@@ -28,7 +28,7 @@
             <ul>
                 <li><strong>/cliente/uno</strong> - Cliente App 1</li>
                 <li><strong>/cliente/dos</strong> - Cliente App 2</li>
-                <li><strong>/registro</strong> - API de Registro (autenticación requerida)</li>
+                <li><strong>/registro</strong> - API de Registro (autenticacion requerida)</li>
                 <li><strong>/monitor</strong> - Panel de Monitoreo</li>
                 <li><strong>/dashboard</strong> - Traefik Dashboard</li>
             </ul>
@@ -39,10 +39,10 @@
         function fetchRegistro() {
             document.getElementById('status').innerHTML = "Obteniendo datos...";
             
-            // Usar credenciales codificadas para este ejemplo (David:123)
+            // Usar credenciales codificadas para este ejemplo (admin:123)
             fetch('/registro', {
                 headers: {
-                    'Authorization': 'Basic YWRtaW46MTIz'  // David:123 en Base64
+                    'Authorization': 'Basic YWRtaW46MTIz'  // admin:123 en Base64
                 }
             })
             .then(response => {
