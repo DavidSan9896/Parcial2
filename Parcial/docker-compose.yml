@@ -1,0 +1,66 @@
+version: '3'
+services:
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"  
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.http.routers.traefik.rule=Host(`localhost`) && PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.middlewares.strip-dashboard.stripPrefix.prefixes=/dashboard"
+      - "traefik.http.routers.traefik.middlewares=strip-dashboard"
+
+  registro-app:
+    build:
+      context: ./registro-app
+    labels:
+      - "traefik.http.routers.registro.rule=Host(`localhost`) && PathPrefix(`/registro`)"
+      - "traefik.http.routers.registro.entrypoints=web"
+      - "traefik.http.routers.registro.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$dhfKKzDd$$1llfwmUPc7hQ3tbx3ypEw/"
+      - "traefik.http.services.registro.loadbalancer.server.port=5000"
+
+  cliente-uno:
+    build:
+      context: ./cliente-app
+    environment:
+      - SERVICE_ID=uno
+    labels:
+      - "traefik.http.routers.uno.rule=Host(`localhost`) && PathPrefix(`/cliente/uno`)"
+      - "traefik.http.middlewares.strip-uno.stripPrefix.prefixes=/cliente/uno"
+      - "traefik.http.routers.uno.middlewares=strip-uno"
+      - "traefik.http.services.uno.loadbalancer.server.port=5000"
+      ## Este es mi header
+      - "traefik.http.middlewares.testHeader.headers.customrequestheaders.X-Script-Name=David"
+      - "traefik.http.middlewares.testHeader.headers.customresponseheaders.X-Custom-Response-Header=value"
+  cliente-dos:
+    build:
+      context: ./cliente-app
+    environment:
+      - SERVICE_ID=dos
+    labels:
+      - "traefik.http.routers.dos.rule=Host(`localhost`) && PathPrefix(`/cliente/dos`)"
+      - "traefik.http.middlewares.strip-dos.stripPrefix.prefixes=/cliente/dos"
+      - "traefik.http.routers.dos.middlewares=strip-dos"
+      - "traefik.http.services.dos.loadbalancer.server.port=5000"
+            ## Este es mi header
+      - "traefik.http.middlewares.testHeader.headers.customrequestheaders.X-Script-Name=Santiago"
+      - "traefik.http.middlewares.testHeader.headers.customresponseheaders.X-Custom-Response-Header=value"
+
+
+  monitor:
+    build:
+      context: ./monitor
+    labels:
+      - "traefik.http.routers.monitor.rule=Host(`localhost`) && PathPrefix(`/monitor`)"
+      - "traefik.http.routers.monitor.entrypoints=web"
+      - "traefik.http.middlewares.strip-monitor.stripPrefix.prefixes=/monitor"
+      - "traefik.http.routers.monitor.middlewares=strip-monitor"
+      - "traefik.http.services.monitor.loadbalancer.server.port=80"
