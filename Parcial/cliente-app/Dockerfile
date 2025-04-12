@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY cliente_app.py .
 
-RUN pip install flask requests
+RUN pip install flask requests pika
 
 CMD ["python", "cliente_app.py"]

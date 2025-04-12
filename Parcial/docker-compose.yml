@@ -17,6 +17,17 @@ services:
       - "traefik.http.middlewares.strip-dashboard.stripPrefix.prefixes=/dashboard"
       - "traefik.http.routers.traefik.middlewares=strip-dashboard"
 
+#Implemetancion de RabbitMQ con su puerto para ver la interfaz de administración
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # Puerto para comunicación AMQP
+      - "15672:15672" # Puerto para la interfaz de administración
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+
   registro-app:
     build:
       context: ./registro-app
@@ -32,28 +43,24 @@ services:
       context: ./cliente-app
     environment:
       - SERVICE_ID=uno
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
     labels:
       - "traefik.http.routers.uno.rule=Host(`localhost`) && PathPrefix(`/cliente/uno`)"
       - "traefik.http.middlewares.strip-uno.stripPrefix.prefixes=/cliente/uno"
       - "traefik.http.routers.uno.middlewares=strip-uno"
       - "traefik.http.services.uno.loadbalancer.server.port=5000"
-      ## Este es mi header
-      - "traefik.http.middlewares.testHeader.headers.customrequestheaders.X-Script-Name=David"
-      - "traefik.http.middlewares.testHeader.headers.customresponseheaders.X-Custom-Response-Header=value"
+
   cliente-dos:
     build:
       context: ./cliente-app
     environment:
       - SERVICE_ID=dos
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
     labels:
       - "traefik.http.routers.dos.rule=Host(`localhost`) && PathPrefix(`/cliente/dos`)"
       - "traefik.http.middlewares.strip-dos.stripPrefix.prefixes=/cliente/dos"
       - "traefik.http.routers.dos.middlewares=strip-dos"
       - "traefik.http.services.dos.loadbalancer.server.port=5000"
-            ## Este es mi header
-      - "traefik.http.middlewares.testHeader.headers.customrequestheaders.X-Script-Name=Santiago"
-      - "traefik.http.middlewares.testHeader.headers.customresponseheaders.X-Custom-Response-Header=value"
-
 
   monitor:
     build:
@@ -65,3 +72,8 @@ services:
       - "traefik.http.routers.monitor.middlewares=strip-monitor"
       - "traefik.http.services.monitor.loadbalancer.server.port=80"
 
+  analytics-app:
+    build:
+      context: ./analytics-app
+    environment:
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
